@@ -47,6 +47,12 @@ const store = (function(){
     this.searchTerm = term;
   };
 
+  const findAndUpdate = function (id, newData) {
+    const found = store.findById(id);
+    Object.assign(found, newData);
+
+  };
+
   return {
     items: [],
     hideCheckedItems: false,
@@ -60,6 +66,7 @@ const store = (function(){
     toggleCheckedFilter,
     setSearchTerm,
     setItemIsEditing,
+    findAndUpdate,
   };
   
 }());
