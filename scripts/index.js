@@ -5,11 +5,16 @@ $(document).ready(function() {
   shoppingList.bindEventListeners();
   shoppingList.render();
   api.getItems()
+    .then(res => {if (!res.ok){
+      throw new Error (res.status);
+    } return res;
+    })
   	.then(res => res.json())
   	.then((items) => {
   		items.forEach((item) => store.addItem(item));
-  		shoppingList.render();
-  	});
+      shoppingList.render();
+    })
+    .catch(error => console.log(error.message));
 });
 
 

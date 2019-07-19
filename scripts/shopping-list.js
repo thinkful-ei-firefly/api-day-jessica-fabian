@@ -102,10 +102,15 @@ const shoppingList = (function(){
       // get the index of the item in store.items
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
+      api.deleteItem(id)
+        .then(res => {
+          store.findAndDelete(id);
+          render();
+        });
 
-      store.findAndDelete(id);
+      //store.findAndDelete(id);
       // render the updated shopping list
-      render();
+      
     });
   }
   
