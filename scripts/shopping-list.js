@@ -43,6 +43,7 @@ const shoppingList = (function(){
   
   function render() {
     // Filter item list if store prop is true by item.checked === false
+    $('.error-message').hide();
     let items = [ ...store.items ];
     if (store.hideCheckedItems) {
       items = items.filter(item => !item.checked);
@@ -68,11 +69,15 @@ const shoppingList = (function(){
       const newItemName = $('.js-shopping-list-entry').val();
       $('.js-shopping-list-entry').val('');
       api.createItem(newItemName)    
-        .then(res => res.json())
+        .then(res => {if (!res.ok){
+            throw new Error (res.status);
+          } return res.json();
+        })
         .then((newItem) => {
           store.addItem(newItem);
           render();
-        });    
+        })
+        .catch(error => showErrorMessage(error.message));    
       
     });
   }
@@ -88,11 +93,15 @@ const shoppingList = (function(){
       const id = getItemIdFromElement(event.currentTarget);
 
       api.updateItem(id, {checked: !store.findById(id).checked})
-        .then(res => res.json())
+        .then(res => {if (!res.ok){
+            throw new Error (res.status);
+          } return res.json();
+        })
         .then(item => {
             store.findAndUpdate(id, {checked: !store.findById(id).checked});
             render();
-        });
+        })
+        .catch(error => showErrorMessage(error.message)); 
     });
   }
   
@@ -103,10 +112,15 @@ const shoppingList = (function(){
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
       api.deleteItem(id)
-        .then(res => {
+        .then(res => {if (!res.ok){
+            throw new Error (res.status);
+          } return res.json();
+        })
+        .then(item => {
           store.findAndDelete(id);
           render();
-        });
+        })
+        .catch(error => showErrorMessage(error.message)); 
 
       //store.findAndDelete(id);
       // render the updated shopping list
@@ -120,12 +134,16 @@ const shoppingList = (function(){
       const id = getItemIdFromElement(event.currentTarget);
       const itemName = $(event.currentTarget).find('.shopping-item').val();
       api.updateItem(id, {name: itemName})
-        .then(res => res.json())
+        .then(res => {if (!res.ok){
+            throw new Error (res.status);
+          } return res.json();
+        })
         .then((item) => {
           store.findAndUpdate(id, {name: itemName});
           store.setItemIsEditing(id, false);
           render();
-        });
+        })
+        .catch(error => showErrorMessage(error.message)); 
     });
   }
   
@@ -151,6 +169,11 @@ const shoppingList = (function(){
       render();
     });
   }
+
+  function showErrorMessage(message){
+    $('.error-message').show();
+    $('.error-message').text(`Error: ${message}`);
+  }
   
   function bindEventListeners() {
     handleNewItemSubmit();
@@ -160,11 +183,13 @@ const shoppingList = (function(){
     handleToggleFilterClick();
     handleShoppingListSearch();
     handleItemStartEditing();
+    //showErrorMessage();
   }
 
   // This object contains the only exposed methods from this module:
   return {
     render: render,
     bindEventListeners: bindEventListeners,
+    showErrorMessage: showErrorMessage,
   };
 }());

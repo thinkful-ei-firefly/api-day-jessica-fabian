@@ -7,14 +7,13 @@ $(document).ready(function() {
   api.getItems()
     .then(res => {if (!res.ok){
       throw new Error (res.status);
-    } return res;
+    } return res.json();
     })
-  	.then(res => res.json())
   	.then((items) => {
   		items.forEach((item) => store.addItem(item));
       shoppingList.render();
     })
-    .catch(error => console.log(error.message));
+    .catch(error => shoppingList.showErrorMessage(error.message));
 });
 
 
